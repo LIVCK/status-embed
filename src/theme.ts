@@ -34,18 +34,36 @@ function parentOf(node: Element): Element | null {
   return root instanceof ShadowRoot ? root.host : null
 }
 
-/** true/false for the first mostly opaque background up the tree, null when everything is transparent. */
-function backgroundIsDark(start: Element): boolean | null {
+/** The first mostly opaque background up the tree, null when everything is transparent. */
+export function paintedBackground(start: Element): Rgba | null {
   for (let node: Element | null = parentOf(start); node; node = parentOf(node)) {
     const color = parseColor(getComputedStyle(node).backgroundColor)
-    if (color && color[3] >= 0.5) return luminance(color) < DARK_BELOW
+    if (color && color[3] >= 0.5) return color
   }
   return null
 }
 
+/** WCAG contrast ratio of two colours. */
+export function contrast(a: Rgba | [number, number, number], b: Rgba | [number, number, number]): number {
+  const [la, lb] = [luminance(a), luminance(b)]
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05)
+}
+
+/**
+ * Whether the text colour the embed inherits reads on what is painted behind it (4.5:1). A
+ * site that paints a dark section but leaves its text colour dark would otherwise get an
+ * unreadable inline badge.
+ */
+export function inheritedInkReads(el: Element, dark: boolean): boolean {
+  const ink = parseColor(getComputedStyle(el).color)
+  if (!ink) return true
+  const bg = paintedBackground(el) ?? (dark ? [24, 24, 27, 1] as Rgba : [255, 255, 255, 1] as Rgba)
+  return contrast(ink, bg) >= 4.5
+}
+
 export function prefersDark(el: Element): boolean {
-  const painted = backgroundIsDark(el)
-  if (painted !== null) return painted
+  const bg = paintedBackground(el)
+  if (bg) return luminance(bg) < DARK_BELOW
   // Nothing painted: the canvas colour decides, and that follows the root's color-scheme.
   const scheme = getComputedStyle(document.documentElement).colorScheme || ''
   const light = /\blight\b/.test(scheme)
@@ -82,7 +100,7 @@ export function watchPage(callback: () => void): () => void {
     // Sites often fade their background on a theme switch. Right after the class change the
     // background is still the old colour, so look again once a background transition ends.
     const settled = (e: TransitionEvent) => {
-      if (e.propertyName.startsWith('background')) notify()
+      if (e.propertyName.startsWith('background') || e.propertyName === 'color') notify()
     }
     document.addEventListener('transitionend', settled, true)
     document.addEventListener('transitioncancel', settled, true)

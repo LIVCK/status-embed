@@ -4,7 +4,7 @@ import { LIVI_ICON } from './livi'
 import { resolve, type Resolved, type Snapshot } from './snapshot'
 import { type State, TEXTS } from './states'
 import { CSS } from './styles'
-import { prefersDark, watchPage } from './theme'
+import { inheritedInkReads, prefersDark, watchPage } from './theme'
 
 let sheet: CSSStyleSheet | null = null
 
@@ -173,10 +173,16 @@ export class LivckStatusElement extends HTMLElement {
   }
 
   #updateTheme(): void {
-    const dark = this.#isDark()
-    if (dark === this.#dark) return
-    this.#dark = dark
-    this.#root.querySelector('.w')?.classList.toggle('dark', dark)
+    const w = this.#root.querySelector('.w')
+    if (!w) return
+    this.#dark = this.#isDark()
+    w.classList.toggle('dark', this.#dark)
+    this.#updateInk(w)
+  }
+
+  /** inline: the site's text colour if it reads on the background, the theme's otherwise. */
+  #updateInk(w: Element): void {
+    w.classList.toggle('ink', this.#config.variant === 'inline' && !inheritedInkReads(this, this.#dark))
   }
 
   /** The label: `%status%` and `%name%` filled in. No state (loading, failed, neutral) reads "Status". */
@@ -218,6 +224,7 @@ export class LivckStatusElement extends HTMLElement {
     ].filter(Boolean).join(' ')
     w.dataset.state = c.neutral || !state ? 'unknown' : state
     w.lang = c.locale
+    this.#updateInk(w)
 
     const link = this.#root.querySelector<HTMLAnchorElement>('.main')!
     link.href = href

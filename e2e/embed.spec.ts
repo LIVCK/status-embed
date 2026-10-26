@@ -122,6 +122,14 @@ test.describe('theme auto', () => {
     expect(colour).toBe('rgb(85, 85, 85)')
   })
 
+  test('inline never inherits a text colour that does not read on its background', async ({ page }) => {
+    await page.goto('/e2e/pages/dark.html')
+    await expect.poll(async () => (await read(page, '#inkDark')).state).toBe('operational')
+    const ink = (sel: string) => page.locator(sel).evaluate(el => getComputedStyle(el.shadowRoot!.querySelector('.txt')!).color)
+    expect(await ink('#inkDark')).toBe('rgb(250, 250, 250)')
+    expect(await ink('#inkLight')).toBe('rgb(24, 24, 27)')
+  })
+
   test('follows the site switching its own theme', async ({ page }) => {
     await page.goto('/e2e/pages/toggle.html')
     await expect.poll(async () => (await read(page, '#t')).state).toBe('operational')
