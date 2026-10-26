@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 import { define, upgradeLink } from '../src/define'
 import type { LivckStatusElement } from '../src/element'
+import pkg from '../package.json'
 import { snapshot } from './fixtures'
 
 beforeAll(() => define())
@@ -107,6 +108,12 @@ describe('<livck-status>', () => {
     expect(q(el, '.txt')!.textContent).toBe('All Systems Operational')
     el.setAttribute('variant', 'button')
     expect(q(el, '.w')!.classList.contains('v-button')).toBe(true)
+  })
+})
+
+describe('version', () => {
+  it('is exposed on the element class', () => {
+    expect((customElements.get('livck-status') as unknown as { version: string }).version).toBe(pkg.version)
   })
 })
 

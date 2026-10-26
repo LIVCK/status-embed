@@ -1,4 +1,7 @@
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vitest/config'
+
+const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
 // Two builds into one dist/:
 //   default      → dist/status-embed.js  ES module for bundlers (exports + registers the element)
@@ -6,6 +9,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig(({ mode }) => {
   const embed = mode === 'embed'
   return {
+    define: { __VERSION__: JSON.stringify(version) },
     build: {
       emptyOutDir: false,
       minify: true,

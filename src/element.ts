@@ -34,6 +34,9 @@ const POWERED_BY = 'statuspage.de'
  * the parts `base`, `link`, `indicator`, `label`, `powered-by`.
  */
 export class LivckStatusElement extends HTMLElement {
+  /** Version of this script, e.g. for support: `customElements.get('livck-status').version`. */
+  static readonly version: string = __VERSION__
+
   static get observedAttributes(): string[] {
     return ATTRIBUTES
   }
