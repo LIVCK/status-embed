@@ -1,6 +1,7 @@
 {
   "name": "@livck/status-embed",
   "version": "1.0.0",
+  "private": true,
   "description": "Show the live status of a LIVCK status page on any website. One small script, no dependencies.",
   "keywords": [
     "status",

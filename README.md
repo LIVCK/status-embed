@@ -40,17 +40,9 @@ For frameworks and hand-written HTML there is the element itself. The same optio
 
 The link inside is shown only if the script does not run.
 
-### npm
+### In a framework
 
-```sh
-npm install @livck/status-embed
-```
-
-```js
-import '@livck/status-embed'
-```
-
-Importing registers `<livck-status>`. Use it in React (19+), Vue, Svelte, Angular like any HTML element. In Vue, tell the compiler it is a custom element: `compilerOptions.isCustomElement = tag => tag === 'livck-status'`.
+Load the script once (for example in your layout) and use `<livck-status>` like any HTML element in React (19+), Vue, Svelte or Angular. In Vue, tell the compiler it is a custom element: `compilerOptions.isCustomElement = tag => tag === 'livck-status'`.
 
 ## Options
 
@@ -135,7 +127,7 @@ The badge sets no cookies, stores nothing in the browser and sends no referrer. 
 
 ## Self-hosting
 
-Copy `dist/embed.js` from the npm package to your server and point the script tag at it. Then only the status request leaves your site. The file at `https://assets.livck.cloud/badge/v1/embed.js` always carries the latest 1.x release. Fixed versions live at `https://assets.livck.cloud/badge/<version>/embed.js` and never change, so they can be pinned with Subresource Integrity.
+Download `https://assets.livck.cloud/badge/<version>/embed.js` (or build it from this repository), put it on your server and point the script tag at it. Then only the status request leaves your site. The file at `https://assets.livck.cloud/badge/v1/embed.js` always carries the latest 1.x release. Fixed versions live at `https://assets.livck.cloud/badge/<version>/embed.js` and never change, so they can be pinned with Subresource Integrity.
 
 ## Browser support
 
@@ -149,6 +141,7 @@ npm test            # unit tests
 npm run build
 npm run size        # size budget of dist/embed.js
 npm run test:e2e    # Chromium, Firefox and WebKit against a real cross-origin status endpoint
+npm run vendor -- <dir>   # copy dist/embed.js to <dir>/<version>/embed.js and print its SRI hash
 ```
 
 ## License
