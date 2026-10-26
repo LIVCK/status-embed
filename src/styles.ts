@@ -18,7 +18,7 @@ export const CSS = `
 --_operational:var(--livck-operational,#008649);--_degraded:var(--livck-degraded,#9c6600);
 --_partial-outage:var(--livck-partial-outage,#b84d00);--_major-outage:var(--livck-major-outage,#c50220);
 --_maintenance:var(--livck-maintenance,#4158bd);--_unknown:var(--livck-unknown,#71717a);
---_neutral:var(--livck-neutral,#155dfc);
+--_neutral:var(--livck-neutral,var(--_fg));
 --_bg:var(--livck-bg,#fff);--_fg:var(--livck-fg,#18181b);--_bd:var(--livck-border-color,#e4e4e7);--_mut:var(--livck-muted,#71717a);
 --_shadow:0 1px 2px rgb(24 24 27/.06);
 --_c:var(--_unknown);
@@ -29,7 +29,7 @@ font:inherit;font-size:var(--_fs,1em);color:var(--_fg);-webkit-font-smoothing:an
 --_operational:var(--livck-operational-dark,#00e59d);--_degraded:var(--livck-degraded-dark,#ffc31a);
 --_partial-outage:var(--livck-partial-outage-dark,#f98f3a);--_major-outage:var(--livck-major-outage-dark,#ed4042);
 --_maintenance:var(--livck-maintenance-dark,#6e89e4);--_unknown:var(--livck-unknown-dark,#a1a1aa);
---_neutral:var(--livck-neutral-dark,#3a79ff);
+--_neutral:var(--livck-neutral-dark,var(--_fg));
 --_bg:var(--livck-bg-dark,#18181b);--_fg:var(--livck-fg-dark,#fafafa);--_bd:var(--livck-border-color-dark,#3f3f46);--_mut:var(--livck-muted-dark,#a1a1aa);
 --_shadow:0 1px 2px rgb(0 0 0/.3)
 }
@@ -38,6 +38,7 @@ font:inherit;font-size:var(--_fs,1em);color:var(--_fg);-webkit-font-smoothing:an
 .w[data-state=partial_outage]{--_c:var(--_partial-outage)}
 .w[data-state=major_outage]{--_c:var(--_major-outage)}
 .w[data-state=maintenance]{--_c:var(--_maintenance)}
+/* neutral: no traffic light, the dot takes the text colour (blue read as "maintenance", grey as "unknown") */
 .w.neutral{--_c:var(--_neutral)}
 .w.system{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .sm{--_fs:12px;--_lh:16px;--_h:24px;--_hb:30px;--_d:6px;--_dot:8px}

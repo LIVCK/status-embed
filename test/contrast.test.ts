@@ -23,10 +23,17 @@ function contrast(a: string, b: string): number {
 describe('default colours', () => {
   for (const suffix of ['', '-dark']) {
     const bg = fallback(`--livck-bg${suffix}`)
-    const colours = [...STATES.map(s => stateAttr(s)), 'neutral', 'fg', 'muted']
+    const colours = [...STATES.map(s => stateAttr(s)), 'fg', 'muted']
 
     it.each(colours)(`%s${suffix} reads on the default background (WCAG AA, 4.5:1)`, (name) => {
       expect(contrast(fallback(`--livck-${name}${suffix}`), bg)).toBeGreaterThanOrEqual(4.5)
     })
   }
+})
+
+describe('neutral', () => {
+  it('follows the text colour unless set, in light and dark', () => {
+    expect(CSS).toContain('--_neutral:var(--livck-neutral,var(--_fg))')
+    expect(CSS).toContain('--_neutral:var(--livck-neutral-dark,var(--_fg))')
+  })
 })

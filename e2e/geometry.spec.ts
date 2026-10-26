@@ -74,3 +74,14 @@ test('the dot sits on the optical centre of the text', async ({ page }, info) =>
     }
   }
 })
+
+test('neutral mode draws the dot in the text colour, light and dark', async ({ page }) => {
+  for (const theme of ['light', 'dark']) {
+    const [dot, text] = await page.evaluate((theme) => {
+      const el = (window as any).make({ neutral: '', theme }, 'major_outage')
+      const root = el.shadowRoot
+      return [getComputedStyle(root.querySelector('.ind')).backgroundColor, getComputedStyle(root.querySelector('.w')).color]
+    }, theme)
+    expect(dot, theme).toBe(text)
+  }
+})

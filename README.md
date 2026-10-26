@@ -57,7 +57,7 @@ Load the script once (for example in your layout) and use `<livck-status>` like 
 | `locale` | `de`, `en` | language of your page | See [Languages](#languages). |
 | `label` | text | `%status%` | `%status%` is the status text, `%name%` the component or page name. Example: `API: %status%`. Per language: `label-de`, `label-en`. |
 | `text-operational` … | text | | Your own wording for one state. States: `operational`, `degraded`, `partial-outage`, `major-outage`, `maintenance`, `unknown`. Per language: `text-operational-en`. |
-| `neutral` | flag | off | Always the neutral colour and "Status", no traffic light. |
+| `neutral` | flag | off | No traffic light: always "Status", the dot in the text colour (`color-neutral` to change it). |
 | `pulse` | `true`, `false` | `true` | Soft pulse on the dot. Always off for visitors who prefer reduced motion. |
 | `target` | `_blank`, `_self` | `_blank` | Where the link opens. |
 | `font` | `inherit`, `system` | `inherit` | `inherit` uses your site's font. |
