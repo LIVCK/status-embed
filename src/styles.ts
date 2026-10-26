@@ -77,7 +77,8 @@ box-shadow:0 0 0 calc(var(--_d) / 3) color-mix(in srgb,var(--_c) 18%,transparent
 .v-button:hover{background:color-mix(in srgb,var(--_fg) 3%,var(--_bg))}
 .v-badge .pw,.v-button .pw{gap:.6em;margin-left:.6em}
 .v-badge .pw::before,.v-button .pw::before{content:"";width:1px;height:1.1em;background:var(--_bd)}
-.v-inline{--_fs:1em;--_lh:inherit}
+.v-inline{--_fs:1em;--_lh:inherit;color:var(--livck-fg,inherit)}
+.v-inline.dark{color:var(--livck-fg-dark,var(--livck-fg,inherit))}
 .v-inline .ind{--_d:.55em}
 .v-inline .livi{width:1.25em;height:1.25em}
 .v-inline .main:hover .txt{text-decoration:underline;text-underline-offset:.2em;text-decoration-thickness:1px}

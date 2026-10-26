@@ -79,6 +79,13 @@ export function watchPage(callback: () => void): () => void {
     observer.observe(document.documentElement, { attributes: true })
     if (document.body) observer.observe(document.body, { attributes: true })
     matchMedia('(prefers-color-scheme: dark)').addEventListener('change', notify)
+    // Sites often fade their background on a theme switch. Right after the class change the
+    // background is still the old colour, so look again once a background transition ends.
+    const settled = (e: TransitionEvent) => {
+      if (e.propertyName.startsWith('background')) notify()
+    }
+    document.addEventListener('transitionend', settled, true)
+    document.addEventListener('transitioncancel', settled, true)
   }
   return () => watchers.delete(callback)
 }

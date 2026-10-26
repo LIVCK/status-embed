@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="de"><head><meta charset="utf-8"><title>toggle</title>
-<style>html.dark body{background:#111}</style></head>
+<style>body{background:#fff;color:#18181b;transition:background-color .3s,color .3s}html.dark body{background:#111;color:#eee}</style></head>
 <body>
   <livck-status id="t" host="http://localhost:4174"></livck-status>
+  <p style="color:#555">Text <livck-status id="inline" host="http://localhost:4174" variant="inline"></livck-status></p>
   <script src="/dist/embed.js" defer></script>
 </body></html>
