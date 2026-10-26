@@ -36,9 +36,9 @@ test('loads the status cross-origin with one plain GET for all embeds', async ({
   expect(await read(page, '#comp')).toMatchObject({ text: 'API: Degraded', state: 'degraded' })
 
   const log = await statusLog()
-  // three embeds, loaded twice over: still a single request, and no CORS preflight
-  expect(log.map(r => r.method)).toEqual(['GET'])
-  expect(log[0]).toMatchObject({ origin: 'http://127.0.0.1:4173', cookie: null, referer: null })
+  // three embeds in two languages, script loaded twice: one GET per language, no CORS preflight
+  expect(log.map(r => `${r.method} ${r.path}`).sort()).toEqual(['GET /de/status.json', 'GET /en/status.json'])
+  for (const r of log) expect(r).toMatchObject({ origin: 'http://127.0.0.1:4173', cookie: null, referer: null })
 })
 
 test('the link form keeps the original link as no-JS fallback', async ({ page }) => {
@@ -89,7 +89,8 @@ test('follows state changes on the next poll', async ({ page }) => {
   await setStatus({ state: 'major_outage' })
   // Step the clock a second at a time: one 70 s jump would also expire the request's own
   // timeout before Firefox/WebKit have sent it.
-  for (let s = 0; s < 70 && (await statusLog()).length < 2; s++) {
+  const enRequests = async () => (await statusLog()).filter(r => r.path === '/en/status.json').length
+  for (let s = 0; s < 70 && (await enRequests()) < 2; s++) {
     await page.clock.runFor(1000)
     await page.waitForTimeout(20)
   }

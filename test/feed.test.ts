@@ -149,6 +149,41 @@ describe('Feed', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
+  it('falls back to the default language once if the status page does not offer it', async () => {
+    const urls: string[] = []
+    vi.stubGlobal('fetch', vi.fn((url: string) => {
+      urls.push(url)
+      return url.includes('/en/') ? Promise.reject(new TypeError('cors')) : ok()
+    }))
+    const l = listener(60)
+    track(new Feed('https://s.example/en/status.json', 'https://s.example/status.json')).subscribe(l)
+    await flush()
+    await flush()
+
+    expect(urls).toEqual(['https://s.example/en/status.json', 'https://s.example/status.json'])
+    expect(l.error).not.toHaveBeenCalled()
+    expect(l.data).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(61_000)
+    expect(urls.at(-1)).toBe('https://s.example/status.json')
+  })
+
+  it('does not abandon a language that worked before', async () => {
+    const urls: string[] = []
+    const fetchMock = vi.fn((url: string) => {
+      urls.push(url)
+      return urls.length === 2 ? Promise.reject(new TypeError('network')) : ok()
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const l = listener(30)
+    track(new Feed('https://s.example/en/status.json', 'https://s.example/status.json')).subscribe(l)
+    await flush()
+    await vi.advanceTimersByTimeAsync(31_000)
+    expect(l.error).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(61_000)
+    expect(urls.every(u => u.includes('/en/'))).toBe(true)
+  })
+
   it('stops polling when the last listener leaves', async () => {
     const fetchMock = vi.fn(() => ok())
     vi.stubGlobal('fetch', fetchMock)

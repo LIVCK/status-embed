@@ -19,7 +19,10 @@ const TIMEOUT_MS = 8000
 const MAX_BACKOFF_S = 300
 
 export class Feed {
-  readonly url: string
+  url: string
+  /** Where to go if `url` never answers (a language the status page does not offer). */
+  readonly #fallback: string | null
+  #everLoaded = false
   #listeners = new Set<Listener>()
   #snapshot: Snapshot | null = null
   #fetchedAt = 0
@@ -27,8 +30,9 @@ export class Feed {
   #timer: ReturnType<typeof setTimeout> | null = null
   #inflight = false
 
-  constructor(url: string) {
+  constructor(url: string, fallback: string | null = null) {
     this.url = url
+    this.#fallback = fallback
   }
 
   subscribe(listener: Listener): () => void {
@@ -89,6 +93,7 @@ export class Feed {
     this.#inflight = true
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS)
+    let switched = false
     try {
       // A plain GET with no custom headers: no CORS preflight, no cookies, no referrer.
       const response = await fetch(this.url, {
@@ -101,15 +106,25 @@ export class Feed {
       if (!isSnapshot(body)) throw new Error('not a status.json')
       this.#snapshot = body
       this.#failures = 0
+      this.#everLoaded = true
       for (const l of [...this.#listeners]) l.onData(body)
     }
     catch {
+      // A status page answers a language it does not offer with 404 and no CORS header, which
+      // reaches us as the same opaque error as a network failure. Before the first success,
+      // move on to the page's default language once, without counting it as a failure.
+      if (!this.#everLoaded && this.#fallback && this.url !== this.#fallback) {
+        this.url = this.#fallback
+        switched = true
+        return
+      }
       this.#failures++
       for (const l of [...this.#listeners]) l.onError()
     }
     finally {
       clearTimeout(timeout)
-      this.#fetchedAt = Date.now()
+      // After switching to the fallback, fetch it right away.
+      this.#fetchedAt = switched ? 0 : Date.now()
       this.#inflight = false
       this.#wake()
     }
@@ -118,11 +133,16 @@ export class Feed {
 
 const feeds = new Map<string, Feed>()
 
-export function feedFor(url: string): Feed {
-  let feed = feeds.get(url)
+/**
+ * The feed of one status page in one language: `/{locale}/status.json` (component and page
+ * names in that language), falling back to `/status.json` if the page does not offer it.
+ */
+export function feedFor(origin: string, locale: string): Feed {
+  const key = `${origin}|${locale}`
+  let feed = feeds.get(key)
   if (!feed) {
-    feed = new Feed(url)
-    feeds.set(url, feed)
+    feed = new Feed(`${origin}/${locale}/status.json`, `${origin}/status.json`)
+    feeds.set(key, feed)
   }
   return feed
 }

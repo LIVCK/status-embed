@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { DEFAULTS, MAX_INTERVAL, MIN_INTERVAL, readConfig, toLength, toOrigin } from '../src/config'
 import { toState } from '../src/states'
 
@@ -87,5 +87,39 @@ describe('toLength', () => {
   it('treats a bare number as px', () => {
     expect(toLength('6')).toBe('6px')
     expect(toLength('0.5rem')).toBe('0.5rem')
+  })
+})
+
+describe('locale', () => {
+  it('follows the page language, nearest lang wins', () => {
+    document.documentElement.lang = 'de'
+    const section = document.createElement('section')
+    section.lang = 'en-GB'
+    const inner = document.createElement('div')
+    section.append(inner)
+    document.body.append(section)
+    expect(readConfig(inner).locale).toBe('en')
+    expect(readConfig(document.body.appendChild(document.createElement('div'))).locale).toBe('de')
+  })
+
+  it('an explicit locale beats the page language', () => {
+    document.documentElement.lang = 'de'
+    const e = document.body.appendChild(el({ locale: 'en' }))
+    expect(readConfig(e).locale).toBe('en')
+  })
+
+  it('without a usable page language it takes the browser language', () => {
+    document.documentElement.lang = 'fr'
+    const spy = vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['fr-FR', 'de-AT', 'en'])
+    expect(readConfig(document.body.appendChild(el({}))).locale).toBe('de')
+    spy.mockReturnValue(['fr-FR'])
+    expect(readConfig(document.body.appendChild(el({}))).locale).toBe('en')
+    spy.mockRestore()
+  })
+
+  it('picks the label of the shown language', () => {
+    const attrs = { 'label': 'Status: %status%', 'label-en': 'Service: %status%' }
+    expect(readConfig(el({ ...attrs, locale: 'en' })).label).toBe('Service: %status%')
+    expect(readConfig(el({ ...attrs, locale: 'de' })).label).toBe('Status: %status%')
   })
 })

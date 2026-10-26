@@ -62,8 +62,8 @@ Importing registers `<livck-status>`. Use it in React (19+), Vue, Svelte, Angula
 | `theme` | `auto`, `light`, `dark` | `auto` | See [Light and dark](#light-and-dark). |
 | `size` | `sm`, `md`, `lg` | `md` | |
 | `icon` | `dot`, `livi`, `none` | `dot` | `livi` shows LIVI, our status mascot, in the status colour instead of the dot. |
-| `locale` | `de`, `en` | visitor's language | Language of the built-in texts. |
-| `label` | text | `%status%` | `%status%` is the status text, `%name%` the component or page name. Example: `API: %status%`. |
+| `locale` | `de`, `en` | language of your page | See [Languages](#languages). |
+| `label` | text | `%status%` | `%status%` is the status text, `%name%` the component or page name. Example: `API: %status%`. Per language: `label-de`, `label-en`. |
 | `text-operational` … | text | | Your own wording for one state. States: `operational`, `degraded`, `partial-outage`, `major-outage`, `maintenance`, `unknown`. Per language: `text-operational-en`. |
 | `neutral` | flag | off | Always the neutral colour and "Status", no traffic light. |
 | `pulse` | `true`, `false` | `true` | Soft pulse on the dot. Always off for visitors who prefer reduced motion. |
@@ -105,6 +105,14 @@ For anything else the parts `base`, `link`, `indicator`, `label` and `powered-by
 ```css
 livck-status::part(label) { font-weight: 600; letter-spacing: .01em; }
 ```
+
+## Languages
+
+German and English. By default the badge speaks the language of the page it sits on: the `lang` of the nearest element, usually `<html lang="…">`. A German page gets a German badge, even for a visitor whose browser is set to English. If your site switches language without a reload, the badge follows. Only a page without a usable `lang` falls back to the visitor's browser language, then English. Set `locale` to fix the language.
+
+Component and page names come in that language too, if your status page offers it. If it does not, the badge shows the names in the status page's default language and the texts still in yours.
+
+Own texts can be set per language: `label-de` / `label-en` and `text-operational-de` / `text-operational-en` and so on.
 
 ## Light and dark
 

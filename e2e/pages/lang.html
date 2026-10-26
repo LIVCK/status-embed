@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>lang</title></head>
+<body>
+  <livck-status id="page" host="http://localhost:4174"></livck-status>
+  <livck-status id="comp" host="http://localhost:4174" component="web" label="%name%: %status%"></livck-status>
+  <div lang="de"><livck-status id="nested" host="http://localhost:4174"></livck-status></div>
+  <livck-status id="labels" host="http://localhost:4174" label-de="Unser Status: %status%" label-en="Our status: %status%"></livck-status>
+  <script src="/dist/embed.js" defer></script>
+</body></html>

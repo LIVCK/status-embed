@@ -64,7 +64,7 @@ export const TEXT_ATTRIBUTES: string[] = STATES.flatMap(s => [
 ])
 
 export const ATTRIBUTES: string[] = [
-  'host', 'component',
+  'host', 'component', ...LOCALES.map(l => `label-${l}`),
   ...Object.keys(DEFAULTS),
   ...Object.keys(COLOR_ATTRIBUTES),
   ...Object.keys(LENGTH_ATTRIBUTES),
@@ -117,21 +117,29 @@ function flag(value: string | null, fallback: boolean): boolean {
   return value !== 'false' && value !== '0' && value !== 'off'
 }
 
-function browserLocale(): Locale {
-  const langs = navigator.languages?.length ? navigator.languages : [navigator.language]
-  for (const lang of langs) {
-    const base = lang?.slice(0, 2).toLowerCase()
-    if ((LOCALES as readonly string[]).includes(base)) return base as Locale
+function toLocale(lang: string | null | undefined): Locale | null {
+  const base = lang?.trim().slice(0, 2).toLowerCase()
+  return base && (LOCALES as readonly string[]).includes(base) ? (base as Locale) : null
+}
+
+/**
+ * `locale="auto"`: the language of the page the badge is on (`lang` of the nearest ancestor,
+ * usually <html lang>), because that is the language the site owner writes in. Only a page
+ * without a usable `lang` falls back to the visitor's browser language, then English.
+ */
+export function autoLocale(el: Element): Locale {
+  const fromPage = toLocale(el.closest('[lang]')?.getAttribute('lang') ?? document.documentElement.lang)
+  if (fromPage) return fromPage
+  for (const lang of navigator.languages?.length ? navigator.languages : [navigator.language]) {
+    const locale = toLocale(lang)
+    if (locale) return locale
   }
   return 'en'
 }
 
 export function readConfig(el: Element): Config {
   const get = (name: string) => el.getAttribute(name)
-  const localeAttr = get('locale')
-  const locale: Locale = (LOCALES as readonly string[]).includes(localeAttr ?? '')
-    ? (localeAttr as Locale)
-    : browserLocale()
+  const locale: Locale = toLocale(get('locale')) ?? autoLocale(el)
 
   const texts: Partial<Record<State, string>> = {}
   for (const s of STATES) {
@@ -149,7 +157,7 @@ export function readConfig(el: Element): Config {
     size: pick(get('size'), SIZES, DEFAULTS.size),
     icon: pick(get('icon'), ICONS, DEFAULTS.icon),
     locale,
-    label: get('label') || DEFAULTS.label,
+    label: get(`label-${locale}`) || get('label') || DEFAULTS.label,
     target: get('target') === '_self' ? '_self' : DEFAULTS.target,
     interval: Number.isFinite(interval)
       ? Math.min(MAX_INTERVAL, Math.max(MIN_INTERVAL, interval))

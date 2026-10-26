@@ -21,7 +21,7 @@ createServer(async (req, res) => {
   }
 }).listen(4173, '127.0.0.1')
 
-let state = { indicator: 'operational', cors: true, components: {} }
+let state = { indicator: 'operational', cors: true, locales: ['de', 'en'] }
 const log = []
 
 createServer((req, res) => {
@@ -29,20 +29,26 @@ createServer((req, res) => {
   if (url.pathname === '/__set') {
     if (url.searchParams.has('state')) state.indicator = url.searchParams.get('state')
     if (url.searchParams.has('cors')) state.cors = url.searchParams.get('cors') === '1'
-    if (url.searchParams.has('reset')) log.length = 0
+    if (url.searchParams.has('locales')) state.locales = url.searchParams.get('locales').split(',')
+    if (url.searchParams.has('reset')) { log.length = 0; state.locales = ['de', 'en'] }
     return res.writeHead(204).end()
   }
   if (url.pathname === '/__log') return res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(log))
   log.push({ method: req.method, path: url.pathname, origin: req.headers.origin ?? null, cookie: req.headers.cookie ?? null, referer: req.headers.referer ?? null })
-  if (url.pathname !== '/status.json') return res.writeHead(404).end()
+  // Like the edge: /status.json is the default language (de), /{locale}/status.json another one
+  // the page offers; a language it does not offer is a 404 without CORS header.
+  const m = url.pathname.match(/^(?:\/([a-z]{2}))?\/status\.json$/)
+  if (!m || (m[1] && !state.locales.includes(m[1]))) return res.writeHead(404).end()
+  const locale = m[1] ?? 'de'
+  const names = { de: { page: 'Acme Status', api: 'Schnittstelle', web: 'Webseite' }, en: { page: 'Acme Status', api: 'API', web: 'Website' } }[locale]
   const headers = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
   if (state.cors) headers['access-control-allow-origin'] = '*'
   res.writeHead(200, headers).end(JSON.stringify({
-    page: { id: 'p1', name: 'Acme Status', url: 'http://localhost:4174', locale: 'de', updated_at: new Date().toISOString() },
+    page: { id: 'p1', name: names.page, url: 'http://localhost:4174', locale, updated_at: new Date().toISOString() },
     status: { indicator: state.indicator, description: '' },
     components: [
-      { id: 'api', name: 'API', status: 'degraded', is_group: false, group_id: null },
-      { id: 'web', name: 'Website', status: 'operational', is_group: false, group_id: null },
+      { id: 'api', name: names.api, status: 'degraded', is_group: false, group_id: null },
+      { id: 'web', name: names.web, status: 'operational', is_group: false, group_id: null },
     ],
     incidents: [],
     maintenances: [],

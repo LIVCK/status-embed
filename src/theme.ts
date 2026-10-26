@@ -56,13 +56,14 @@ export function prefersDark(el: Element): boolean {
 }
 
 /**
- * Re-check every auto-themed embed when the page switches its theme: class/style/data-*
- * changes on <html> or <body>, or the OS preference. One observer for the whole document.
+ * Tell every embed when the page may have switched theme or language: any attribute change on
+ * <html> or <body> (class, style, data-theme, lang …) or the OS colour preference. One observer
+ * for the whole document.
  */
 const watchers = new Set<() => void>()
 let observer: MutationObserver | null = null
 
-export function watchTheme(callback: () => void): () => void {
+export function watchPage(callback: () => void): () => void {
   watchers.add(callback)
   if (!observer) {
     let queued = false

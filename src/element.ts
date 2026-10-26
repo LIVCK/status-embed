@@ -4,7 +4,7 @@ import { LIVI_ICON } from './livi'
 import { resolve, type Resolved, type Snapshot } from './snapshot'
 import { type State, TEXTS } from './states'
 import { CSS } from './styles'
-import { prefersDark, watchTheme } from './theme'
+import { prefersDark, watchPage } from './theme'
 
 let sheet: CSSStyleSheet | null = null
 
@@ -71,7 +71,7 @@ export class LivckStatusElement extends HTMLElement {
   connectedCallback(): void {
     this.#config = readConfig(this)
     this.#applyStyleAttributes()
-    this.#unwatchTheme ??= watchTheme(() => this.#updateTheme())
+    this.#unwatchTheme ??= watchPage(() => this.#pageChanged())
     this.#connect()
   }
 
@@ -89,7 +89,7 @@ export class LivckStatusElement extends HTMLElement {
       this.#applyStyleAttributes()
       return
     }
-    if (before.origin !== this.#config.origin || before.interval !== this.#config.interval || before.component !== this.#config.component) {
+    if (before.origin !== this.#config.origin || before.locale !== this.#config.locale || before.interval !== this.#config.interval || before.component !== this.#config.component) {
       this.#connect()
     }
     else {
@@ -113,7 +113,7 @@ export class LivckStatusElement extends HTMLElement {
     const start = () => {
       this.#visibility?.disconnect()
       this.#visibility = null
-      this.#unsubscribe = feedFor(`${origin}/status.json`).subscribe({
+      this.#unsubscribe = feedFor(origin, this.#config.locale).subscribe({
         interval: this.#config.interval,
         onData: (snapshot) => {
           this.#data = resolve(snapshot, this.#config.component)
@@ -161,6 +161,17 @@ export class LivckStatusElement extends HTMLElement {
     return this.#config.theme === 'dark'
   }
 
+  /** The page switched theme or language: follow it where the embed is set to `auto`. */
+  #pageChanged(): void {
+    const locale = readConfig(this).locale
+    if (locale !== this.#config.locale) {
+      this.#config = readConfig(this)
+      this.#connect()
+      return
+    }
+    this.#updateTheme()
+  }
+
   #updateTheme(): void {
     const dark = this.#isDark()
     if (dark === this.#dark) return
@@ -206,6 +217,7 @@ export class LivckStatusElement extends HTMLElement {
       c.font === 'system' ? 'system' : '',
     ].filter(Boolean).join(' ')
     w.dataset.state = c.neutral || !state ? 'unknown' : state
+    w.lang = c.locale
 
     const link = this.#root.querySelector<HTMLAnchorElement>('.main')!
     link.href = href
