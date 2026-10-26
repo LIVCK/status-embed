@@ -78,7 +78,7 @@ test('works under a strict CSP without errors', async ({ page }) => {
       display: w.display,
     }
   })
-  expect(styled).toEqual({ radius: '4px', dot: 'rgb(18, 52, 86)', display: 'inline-flex' })
+  expect(styled).toEqual({ radius: '4px', dot: 'rgb(18, 52, 86)', display: 'flex' })
   expect(violations).toEqual([])
 })
 

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><title>measure</title>
+<style>body{margin:0;padding:24px;background:#fff} .row{display:flex;gap:16px;align-items:center;margin-bottom:16px}</style></head>
+<body>
+  <div id="root" style="display:grid;grid-template-columns:repeat(6,max-content);gap:8px"></div>
+  <script type="module">
+    import '/dist/status-embed.js'
+    const data = s => ({ page: { id: 'p', name: 'Acme', url: 'https://x.example', locale: 'de', updated_at: '' }, status: { indicator: s, description: '' }, components: [] })
+    window.make = (attrs, preview = 'operational', style = '') => {
+      const el = document.createElement('livck-status')
+      for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v)
+      if (style) el.setAttribute('style', style)
+      if (preview) el.preview = data(preview)
+      const row = document.createElement('div'); row.className = 'row'; row.append(el)
+      document.getElementById('root').append(row)
+      return el
+    }
+    document.body.dataset.ready = '1'
+  </script>
+</body></html>

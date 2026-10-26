@@ -1,11 +1,11 @@
 import { LOCALES, type Locale, STATES, type State, stateAttr } from './states'
 
-export type Variant = 'badge' | 'dot' | 'inline' | 'button' | 'livi'
+export type Variant = 'badge' | 'dot' | 'inline' | 'button'
 export type Theme = 'auto' | 'light' | 'dark'
 export type Size = 'sm' | 'md' | 'lg'
 export type Icon = 'dot' | 'livi' | 'none'
 
-export const VARIANTS: readonly Variant[] = ['badge', 'dot', 'inline', 'button', 'livi']
+export const VARIANTS: readonly Variant[] = ['badge', 'dot', 'inline', 'button']
 export const THEMES: readonly Theme[] = ['auto', 'light', 'dark']
 export const SIZES: readonly Size[] = ['sm', 'md', 'lg']
 export const ICONS: readonly Icon[] = ['dot', 'livi', 'none']

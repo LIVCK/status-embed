@@ -4,7 +4,7 @@ Show the live status of a [LIVCK](https://livck.cloud) status page on any websit
 
 - **Easy to embed.** A normal link plus one script tag. Works wherever you can paste HTML, and in React, Vue and other frameworks as an element.
 - **Looks right on your site.** Light or dark is decided by the background the badge actually sits on, and follows your theme switch. Colours, texts, radius and more can be set per attribute or from your CSS.
-- **Small and quiet.** About 7.5 KB gzipped, no dependencies, no cookies, no tracking. One request per status page, however many badges you show. Polling pauses in background tabs, and a badge far down the page fetches nothing until the visitor scrolls close.
+- **Small and quiet.** About 6.5 KB gzipped, no dependencies, no cookies, no tracking. One request per status page, however many badges you show. Polling pauses in background tabs, and a badge far down the page fetches nothing until the visitor scrolls close.
 - **Honest.** If the status cannot be loaded, the badge stays a plain "Status" link. It never shows a state it does not know.
 
 Build your badge with the visual builder at **[livck.cloud/badge-builder](https://livck.cloud/badge-builder)** and copy the snippet. Everything below is for reference.
@@ -57,11 +57,11 @@ Importing registers `<livck-status>`. Use it in React (19+), Vue, Svelte, Angula
 | Attribute | Values | Default | |
 |---|---|---|---|
 | `host` | domain or URL | from the link's `href` | The status page. https only. |
-| `variant` | `badge`, `dot`, `inline`, `button`, `livi` | `badge` | `inline` sits in running text and takes its font size. `livi` is a card with LIVI, our status mascot. |
+| `variant` | `badge`, `dot`, `inline`, `button` | `badge` | `inline` sits in running text and takes its font size. |
 | `component` | component id | | Show one component instead of the whole page. Ids are listed in the page's `/status.json`. |
 | `theme` | `auto`, `light`, `dark` | `auto` | See [Light and dark](#light-and-dark). |
 | `size` | `sm`, `md`, `lg` | `md` | |
-| `icon` | `dot`, `livi`, `none` | `dot` | `livi` shows LIVI as a small icon with the status in her lamp. |
+| `icon` | `dot`, `livi`, `none` | `dot` | `livi` shows LIVI, our status mascot, in the status colour instead of the dot. |
 | `locale` | `de`, `en` | visitor's language | Language of the built-in texts. |
 | `label` | text | `%status%` | `%status%` is the status text, `%name%` the component or page name. Example: `API: %status%`. |
 | `text-operational` … | text | | Your own wording for one state. States: `operational`, `degraded`, `partial-outage`, `major-outage`, `maintenance`, `unknown`. Per language: `text-operational-en`. |

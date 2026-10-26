@@ -4,7 +4,8 @@
   body{margin:0;font-family:Inter,system-ui,sans-serif}
   .theme{display:grid;gap:14px;padding:24px}
   .light{background:#fff}.dark{background:#18181b}
-  .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .theme{width:900px}
 </style></head>
 <body>
   <section class="theme light" id="light"></section>
@@ -13,7 +14,7 @@
     import { STATES } from '/dist/status-embed.js'
     const variants = [
       { variant: 'badge' }, { variant: 'badge', icon: 'livi' }, { variant: 'inline' }, { variant: 'button' },
-      { variant: 'dot', size: 'lg' }, { variant: 'badge', 'powered-by': '' }, { variant: 'livi', component: 'api' },
+      { variant: 'dot', size: 'lg' }, { variant: 'dot', size: 'lg', icon: 'livi' }, { variant: 'badge', 'powered-by': '' }, { variant: 'button', icon: 'livi', target: '_self' }, { variant: 'badge', size: 'sm' }, { variant: 'badge', size: 'lg', icon: 'livi' },
     ]
     for (const section of ['light', 'dark']) {
       for (const v of variants) {

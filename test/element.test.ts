@@ -81,10 +81,24 @@ describe('<livck-status>', () => {
     expect(mount({}).shadowRoot!.querySelector('.pw')).toBeNull()
   })
 
-  it('renders LIVI as icon or as figure', () => {
-    expect(q(mount({ icon: 'livi' }), '.livi-icon')).not.toBeNull()
-    const card = mount({ variant: 'livi' }, snapshot('major_outage'))
-    expect(card.shadowRoot!.querySelector('svg.livi.st-major')).not.toBeNull()
+  it('renders LIVI as icon in place of the dot', () => {
+    const el = mount({ icon: 'livi' })
+    expect(q(el, 'svg.livi .lamp')).not.toBeNull()
+    expect(q(el, '.ind')).toBeNull()
+  })
+
+  it('has no LIVI card variant', () => {
+    expect(q(mount({ variant: 'livi' }), '.w')!.classList.contains('v-badge')).toBe(true)
+  })
+
+  it('icon none drops the indicator, except on the dot variant', () => {
+    expect(q(mount({ icon: 'none' }), '[part=indicator]')).toBeNull()
+    expect(q(mount({ icon: 'none', variant: 'dot' }), '.ind')).not.toBeNull()
+  })
+
+  it('button arrow says where the link opens', () => {
+    expect(q(mount({ variant: 'button' }), '.arrow path')!.getAttribute('d')).toContain('M7 17 17 7')
+    expect(q(mount({ variant: 'button', target: '_self' }), '.arrow path')!.getAttribute('d')).toContain('M5 12h14')
   })
 
   it('re-renders on attribute change', () => {

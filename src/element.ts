@@ -1,6 +1,6 @@
 import { ATTRIBUTES, COLOR_ATTRIBUTES, type Config, LENGTH_ATTRIBUTES, readConfig, toLength } from './config'
 import { feedFor } from './feed'
-import { LIVI_ICON, liviFigure } from './livi'
+import { LIVI_ICON } from './livi'
 import { resolve, type Resolved, type Snapshot } from './snapshot'
 import { type State, TEXTS } from './states'
 import { CSS } from './styles'
@@ -188,11 +188,11 @@ export class LivckStatusElement extends HTMLElement {
     const href = this.#data?.url ?? c.origin ?? '#'
     const label = this.#text(c.neutral ? null : state)
 
-    // Structure only changes with variant/icon/powered-by; everything else is patched in place.
-    const shape = `${c.variant}|${c.icon}|${c.poweredBy}|${c.variant === 'livi' ? state : ''}`
+    // Structure only changes with variant/icon/powered-by/target; everything else is patched in place.
+    const shape = `${c.variant}|${c.icon}|${c.poweredBy}|${c.target}`
     if (shape !== this.#rendered) {
       this.#rendered = shape
-      this.#build(state ?? 'unknown')
+      this.#build()
     }
 
     this.#dark = this.#isDark()
@@ -219,14 +219,11 @@ export class LivckStatusElement extends HTMLElement {
     // in place stays silent, so it is switched on only once real data is shown.
     if (this.#data && !this.#previewSnapshot) text.setAttribute('aria-live', 'polite')
 
-    const sub = this.#root.querySelector<HTMLElement>('.sub')
-    if (sub) sub.textContent = c.component ? (this.#data?.name ?? '') : ''
-
     const powered = this.#root.querySelector<HTMLAnchorElement>('.pw a')
     if (powered) powered.href = `https://statuspage.de/${c.locale}/?utm_source=status-embed&utm_medium=${c.variant}`
   }
 
-  #build(state: State): void {
+  #build(): void {
     const c = this.#config
     const w = this.#root.querySelector('.w') ?? document.createElement('span')
     w.className = 'w'
@@ -237,43 +234,25 @@ export class LivckStatusElement extends HTMLElement {
     link.className = 'main'
     link.setAttribute('part', 'link')
 
-    let indicator: Element | null
-    if (c.icon === 'none' && c.variant !== 'dot' && c.variant !== 'livi') {
-      indicator = null
-    }
-    else if (c.variant === 'livi') {
-      indicator = template(liviFigure(state))
-    }
-    else if (c.icon === 'livi') {
+    let indicator: Element | null = null
+    if (c.icon === 'livi') {
       indicator = template(LIVI_ICON)
     }
-    else {
+    else if (c.icon === 'dot' || c.variant === 'dot') {
       indicator = document.createElement('span')
       indicator.className = 'ind'
     }
     indicator?.setAttribute('part', 'indicator')
+    if (indicator) link.append(indicator)
 
     const text = document.createElement('span')
     text.className = c.variant === 'dot' ? 'txt sr' : 'txt'
     text.setAttribute('part', 'label')
+    link.append(text)
 
-    if (c.variant === 'livi') {
-      const copy = document.createElement('span')
-      copy.className = 'copy'
-      const sub = document.createElement('span')
-      sub.className = 'sub'
-      copy.append(text, sub)
-      link.append(...[indicator, copy].filter(n => n !== null))
-    }
-    else {
-      link.append(...[indicator, text].filter(n => n !== null))
-    }
     if (c.variant === 'button') {
-      const arrow = document.createElement('span')
-      arrow.className = 'arrow'
-      arrow.setAttribute('aria-hidden', 'true')
-      arrow.textContent = '→'
-      link.append(arrow)
+      // Up-right for a new tab, right for the same tab: says where the click goes.
+      link.append(template(c.target === '_blank' ? ARROW_OUT : ARROW_RIGHT))
     }
     w.append(link)
 
@@ -285,13 +264,16 @@ export class LivckStatusElement extends HTMLElement {
       a.rel = 'nofollow noopener'
       a.target = '_blank'
       a.textContent = POWERED_BY
-      pw.append(c.variant === 'livi' || c.variant === 'button' ? '' : '· ', a)
+      pw.append(a)
       w.append(pw)
     }
 
     if (!w.isConnected) this.#root.append(w)
   }
 }
+
+const ARROW_OUT = '<svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M8 7h9v9"/></svg>'
+const ARROW_RIGHT = '<svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
 
 function template(markup: string): Element {
   const t = document.createElement('template')
