@@ -1,0 +1,52 @@
+{
+  "name": "@livck/status-embed",
+  "version": "1.0.0",
+  "description": "Show the live status of a LIVCK status page on any website. One small script, no dependencies.",
+  "keywords": [
+    "status",
+    "status-page",
+    "badge",
+    "uptime",
+    "web-component",
+    "livck"
+  ],
+  "homepage": "https://livck.cloud/badge-builder",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LIVCK/status-embed.git"
+  },
+  "bugs": "https://github.com/LIVCK/status-embed/issues",
+  "license": "MIT",
+  "author": "LIVCK",
+  "type": "module",
+  "sideEffects": true,
+  "main": "./dist/status-embed.js",
+  "module": "./dist/status-embed.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/status-embed.js"
+    },
+    "./embed.js": "./dist/embed.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && vite build && vite build --mode embed && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "size": "node scripts/size.js",
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "happy-dom": "^21.0.4",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}

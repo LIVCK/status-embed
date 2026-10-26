@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><title>gallery</title>
+<style>
+  body{margin:0;font-family:Inter,system-ui,sans-serif}
+  .theme{display:grid;gap:14px;padding:24px}
+  .light{background:#fff}.dark{background:#18181b}
+  .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+</style></head>
+<body>
+  <section class="theme light" id="light"></section>
+  <section class="theme dark" id="dark"></section>
+  <script type="module">
+    import { STATES } from '/dist/status-embed.js'
+    const variants = [
+      { variant: 'badge' }, { variant: 'badge', icon: 'livi' }, { variant: 'inline' }, { variant: 'button' },
+      { variant: 'dot', size: 'lg' }, { variant: 'badge', 'powered-by': '' }, { variant: 'livi', component: 'api' },
+    ]
+    for (const section of ['light', 'dark']) {
+      for (const v of variants) {
+        const row = document.createElement('div')
+        row.className = 'row'
+        for (const state of STATES) {
+          const el = document.createElement('livck-status')
+          for (const [k, val] of Object.entries({ locale: 'de', pulse: 'false', ...v })) el.setAttribute(k, val)
+          el.preview = {
+            page: { id: 'p', name: 'Acme', url: 'https://status.acme.example', locale: 'de', updated_at: '' },
+            status: { indicator: state, description: '' },
+            components: [{ id: 'api', name: 'API', status: state, is_group: false, group_id: null }],
+          }
+          row.append(el)
+        }
+        document.getElementById(section).append(row)
+      }
+    }
+    document.body.dataset.ready = '1'
+  </script>
+</body></html>
